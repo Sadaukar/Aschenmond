@@ -212,6 +212,37 @@ function collide(o,steer,dt){let hit=false;for(const b of OB){let nx,ny,pen;
   return hit}
 setLevel(1);
 
+const moonC=document.createElement('canvas');moonC.width=moonC.height=236;
+(function(){const m=moonC.getContext('2d'),R=118,P=(x,y)=>[R+x*R,R+y*R];
+  m.save();m.beginPath();m.arc(R,R,R-1,0,TAU);m.clip();
+  let q=m.createRadialGradient(R-18,R-22,10,R,R,R);q.addColorStop(0,'#eadccf');q.addColorStop(.7,'#d3bfb2');q.addColorStop(1,'#b89a90');m.fillStyle=q;m.fillRect(0,0,236,236);
+  const blob=(x,y,r,a,c)=>{const [px,py]=P(x,y),rr2=r*R,gd=m.createRadialGradient(px,py,rr2*.1,px,py,rr2);gd.addColorStop(0,'rgba('+c+','+a+')');gd.addColorStop(1,'rgba('+c+',0)');m.fillStyle=gd;m.fillRect(px-rr2,py-rr2,rr2*2,rr2*2)};
+  const D='92,72,78';
+  const MARIA=[[-.62,-.15,.30],[-.55,.05,.27],[-.68,-.36,.2],[-.5,-.3,.22],[-.46,.16,.2],[-.74,.02,.16],
+    [-.25,-.5,.29],[-.3,-.56,.2],[-.16,-.44,.2],
+    [.22,-.42,.21],[.24,-.38,.15],
+    [.4,-.15,.21],[.3,-.08,.15],[.47,-.06,.14],
+    [.72,-.28,.12],[.74,-.26,.08],
+    [.62,.08,.15],[.6,.2,.11],
+    [.42,.22,.1],
+    [-.18,.35,.19],[-.08,.28,.13],[-.26,.42,.12],
+    [-.48,.38,.11],
+    [-.3,.08,.15],[-.2,.14,.12],
+    [.02,-.12,.09],[.1,-.24,.08],
+    [-.4,-.76,.07],[-.3,-.78,.07],[-.2,-.79,.07],[-.1,-.8,.07],[0,-.8,.07],[.1,-.78,.07],[.2,-.75,.07],[.3,-.7,.07]];
+  for(const b of MARIA){blob(b[0],b[1],b[2]*1.35,.36,D);blob(b[0]+rnd(-.05,.05),b[1]+rnd(-.05,.05),b[2]*1.1,.22,D);blob(b[0]+rnd(-.08,.08),b[1]+rnd(-.08,.08),b[2]*.8,.16,D)}
+  for(let i=0;i<900;i++){const a=rnd(0,TAU),d=Math.sqrt(Math.random())*R;m.fillStyle=Math.random()<.5?'rgba(255,245,235,.07)':'rgba(70,45,50,.07)';m.fillRect(R+Math.cos(a)*d,R+Math.sin(a)*d,rnd(1,3),rnd(1,3))}
+  for(let i=0;i<70;i++){const x=rnd(-.8,.8),y=i<50?rnd(.3,.92):rnd(-.9,.9);if(x*x+y*y>.84)continue;const [px,py]=P(x,y),r=rnd(1.5,5);
+    m.fillStyle='rgba(80,55,60,.10)';m.beginPath();m.arc(px,py,r,0,TAU);m.fill();
+    m.strokeStyle='rgba(70,45,50,.22)';m.lineWidth=1;m.beginPath();m.arc(px,py,r,3.5,5.9);m.stroke();m.strokeStyle='rgba(255,248,240,.25)';m.beginPath();m.arc(px,py,r,.4,2.8);m.stroke()}
+  const [tx,ty]=P(-.1,.72);m.lineCap='round';
+  for(let i=0;i<14;i++){const a=i*TAU/14+rnd(-.15,.15),l=rnd(.3,.95)*R;m.strokeStyle='rgba(255,248,240,'+rnd(.05,.11)+')';m.lineWidth=rnd(1.5,3.5);m.beginPath();m.moveTo(tx+Math.cos(a)*5,ty+Math.sin(a)*5);m.lineTo(tx+Math.cos(a)*l,ty+Math.sin(a)*l);m.stroke()}
+  const W2='255,250,242';
+  blob(-.1,.72,.1,.55,W2);blob(-.33,-.12,.09,.5,W2);blob(-.6,-.1,.055,.45,W2);blob(-.68,-.38,.05,.7,W2);blob(.85,.15,.05,.3,W2);blob(.18,-.62,.04,.3,W2);
+  for(const c of [[-.1,.72,3],[-.33,-.12,3.5]]){const [px,py]=P(c[0],c[1]);m.fillStyle='rgba(90,65,70,.35)';m.beginPath();m.arc(px,py,c[2],0,TAU);m.fill()}
+  q=m.createRadialGradient(R,R,R*.6,R,R,R);q.addColorStop(0,'rgba(90,30,32,0)');q.addColorStop(1,'rgba(90,30,32,.3)');m.fillStyle=q;m.fillRect(0,0,236,236);
+  m.restore()})();
+
 /* ---------- Zustand ---------- */
 let mode='title',modeT=0,P=null,E=[],SH=[],RG=[],FZ=[],PT=[],wave=0,clearT=0,banner={s:'',t:0},shake=0,hitstop=0,time=0,ash=0,deaths=0,runT=0,bon=0,waitUp=false,cheat=false;
 const TS={w:0,ash:0,bon:0,god:false,p2:false};
@@ -500,12 +531,7 @@ function draw(){ctx.clearRect(0,0,W,H);scene();
   if(mode==='title'){ctx.fillStyle='rgba(3,3,6,.78)';ctx.fillRect(0,0,W,H);
     const g=ctx.createRadialGradient(W/2,150,10,W/2,150,190);g.addColorStop(0,'rgba(214,190,170,.95)');g.addColorStop(.3,'rgba(190,150,140,.9)');g.addColorStop(.32,'rgba(150,60,50,.22)');g.addColorStop(1,'rgba(120,30,30,0)');
     ctx.fillStyle=g;ctx.fillRect(0,0,W,360);
-    ctx.save();ctx.beginPath();ctx.arc(W/2,150,59,0,TAU);ctx.clip();
-    ctx.fillStyle='rgba(90,50,50,.10)';for(const m of [[-18,-14,24,17],[16,10,20,15],[-8,26,17,10],[26,-26,13,9]])el(W/2+m[0],150+m[1],m[2],m[3]);
-    for(const c of [[-30,8,7],[-6,-32,5],[22,-8,6],[8,30,8],[-22,34,4],[36,18,5],[-40,-18,4],[4,-4,3.5],[30,38,3],[-12,12,3],[42,-6,3]]){const x=W/2+c[0],y=150+c[1],r=c[2];
-      ctx.fillStyle='rgba(80,40,40,.13)';el(x,y,r,r);ctx.strokeStyle='rgba(60,25,25,.16)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,r,3.6,6.0);ctx.stroke();
-      ctx.strokeStyle='rgba(255,240,225,.16)';ctx.beginPath();ctx.arc(x,y,r,.5,2.9);ctx.stroke()}
-    ctx.restore();
+    ctx.drawImage(moonC,W/2-63,87,126,126);
     txt('ASCHENMOND',W/2,300,72,'#d8cfba','center',700);ctx.fillStyle='#8e1b22';ctx.fillRect(W/2-170,318,340,2);
     txt('Ein Spiel von Sadaukar und JudasIscariot',W/2,340,12,'#7d7566');
     txt('Zwei Nächte. Zwei Bestien. Kein Erbarmen.',W/2,370,17,'#9a9282');

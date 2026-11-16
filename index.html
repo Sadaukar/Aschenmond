@@ -247,12 +247,12 @@ const moonC=document.createElement('canvas');moonC.width=moonC.height=236;
   m.restore()})();
 
 /* ---------- Zustand ---------- */
-let mode='title',modeT=0,P=null,E=[],SH=[],RG=[],FZ=[],PT=[],wave=0,clearT=0,banner={s:'',t:0},shake=0,hitstop=0,time=0,ash=0,deaths=0,runT=0,bon=0,waitUp=false,cheat=false;
+let mode='title',modeT=0,P=null,E=[],SH=[],RG=[],FZ=[],PT=[],wave=0,clearT=0,banner={s:'',t:0},shake=0,hitstop=0,time=0,ash=0,deaths=0,runT=0,bon=0,waitUp=false,cheat=false,fzT=0;
 const TS={w:0,ash:0,bon:0,god:false,p2:false};
 const WAVES=[{lv:1,n:'Die Aschengasse',e:['g','g','g']},{lv:1,n:'Fackeln im Nebel',e:['g','g','t','t']},{lv:1,n:'Der Schlächter',e:['b','g','g','t']},{lv:1,n:'Der Glockenwolf',e:['w'],boss:1},
   {lv:2,n:'Die versunkene Kapelle',e:['g','g','g','t','t']},{lv:2,n:'Wache der Stille',e:['b','t','t','g','g']},{lv:2,n:'Die Aschenäbtissin',e:['a'],boss:1}];
 const DEF={g:{r:13,hp:55,spd:88,ash:40},t:{r:11,hp:38,spd:75,ash:55},b:{r:22,hp:150,spd:58,ash:150},w:{r:30,hp:560,spd:115,ash:1000,boss:1},a:{r:20,hp:460,spd:72,ash:1500,boss:1}};
-function newP(){return{x:W/2,y:450,r:12,hp:100+bon,rally:0,rallyT:0,st:100,stD:0,vials:4,state:'free',t:0,ang:-Math.PI/2,inv:0,combo:-1,hit:null,dx:0,dy:0,kx:0,ky:0,buf:false,healed:false}}
+function newP(){return{x:W/2,y:450,r:12,hp:100+bon,rally:0,rallyT:0,st:100,stD:0,vials:4,state:'free',t:0,ang:-Math.PI/2,inv:0,combo:-1,hit:null,dx:0,dy:0,kx:0,ky:0,buf:false,healed:false,streak:0,fz:false,fzS:false}}
 function mk(type){const d=DEF[type];let x,y,i=0;
   do{x=rnd(AR.x0+40,AR.x1-40);y=rnd(AR.y0+30,AR.y1-30)}while(hyp(x-P.x,y-P.y)<270&&i++<60);
   if(d.boss){x=W/2;y=AR.y0+80}
@@ -316,7 +316,7 @@ function blood(x,y,a,n,all){for(let i=0;i<n;i++){const an=all?rnd(0,TAU):a+rnd(-
   dx.fillStyle='rgba(72,6,10,.45)';dx.beginPath();dx.arc(x+Math.cos(a)*rnd(4,22),y+Math.sin(a)*rnd(4,22),rnd(4,all?16:9),0,TAU);dx.fill()}
 function clampA(o){let h=false;if(o.x<AR.x0+o.r){o.x=AR.x0+o.r;h=true}if(o.x>AR.x1-o.r){o.x=AR.x1-o.r;h=true}if(o.y<AR.y0+o.r){o.y=AR.y0+o.r;h=true}if(o.y>AR.y1-o.r){o.y=AR.y1-o.r;h=true}return h}
 function hurtP(d,fx,fy){const p=P;if(mode!=='play'||(cheat&&TS.god)||p.inv>0||(p.state==='dodge'&&p.t<.22))return false;
-  p.hp-=d;p.rally=d*.85;p.rallyT=3;p.inv=.45;const a=Math.atan2(p.y-fy,p.x-fx);p.kx=Math.cos(a)*270;p.ky=Math.sin(a)*270;
+  p.hp-=d;p.streak=0;p.rally=d*.85;p.rallyT=3;p.inv=.45;const a=Math.atan2(p.y-fy,p.x-fx);p.kx=Math.cos(a)*270;p.ky=Math.sin(a)*270;
   if(p.state!=='dodge'){p.state='free';p.t=0}
   shake=Math.max(shake,9);blood(p.x,p.y,a,8);noise(.16,.3,500);
   if(p.hp<=0){p.hp=0;p.rally=0;mode='dead';modeT=0;deaths++;ash=ash/2|0;if(ash<500)waitUp=false;blood(p.x,p.y,0,26,true);tone(110,1.6,'sawtooth',.12,38)}
@@ -334,7 +334,7 @@ function hitE(e,dmg){e.hp-=dmg;e.flash=.12;const a=Math.atan2(e.y-P.y,e.x-P.x),k
     if(e.type==='w'){e.state='howlW';e.t=1;banner={s:'Die Glocke schlägt',t:2.4}}
     else{e.state='tpW';e.t=.6;banner={s:'Die Asche erwacht',t:2.4};E.push(mk('g'),mk('g'))}}}
 function startAtk(){const p=P;if(!touch)p.ang=Math.atan2(mouse.y-p.y,mouse.x-p.x);
-  p.state='atk';p.t=0;p.buf=false;p.combo=(p.combo+1)%3;p.hit=new Set();p.st=Math.max(-15,p.st-(p.combo===2?24:17));p.stD=.55;
+  p.state='atk';p.t=0;p.buf=false;p.combo=(p.combo+1)%3;p.hit=new Set();p.fzS=false;p.st=Math.max(-15,p.st-(p.combo===2?24:17));p.stD=.55;
   p.kx+=Math.cos(p.ang)*150;p.ky+=Math.sin(p.ang)*150;noise(.09,.07,3200)}
 function startDodge(mx,my,ml){const p=P;if(ml>.2){p.dx=mx/ml;p.dy=my/ml}else{p.dx=-Math.cos(p.ang);p.dy=-Math.sin(p.ang)}
   p.state='dodge';p.t=0;p.buf=false;p.st=Math.max(-15,p.st-24);p.stD=.5;noise(.12,.06,1800)}
@@ -357,7 +357,8 @@ function updP(dt){const p=P;
     else if(wantHeal&&p.vials>0&&p.hp<100+bon){p.state='heal';p.t=0;p.healed=false}
   }else if(p.state==='atk'){spd=70;if(wantAtk)p.buf=true;
     if(p.t>.06&&p.t<.2)for(const e of E.slice()){if(p.hit.has(e)||e.state==='spawn'||!E.includes(e))continue;
-      const d=hyp(e.x-p.x,e.y-p.y);if(d<60+e.r&&Math.abs(angd(Math.atan2(e.y-p.y,e.x-p.x),p.ang))<1.15){p.hit.add(e);hitE(e,(p.combo===2?30:22)*(1+bon/100))}}
+      const d=hyp(e.x-p.x,e.y-p.y);if(d<60+e.r&&Math.abs(angd(Math.atan2(e.y-p.y,e.x-p.x),p.ang))<1.15){if(!p.hit.size){if(p.fz){p.fz=false;p.fzS=true;shake=Math.max(shake,10);hitstop=Math.max(hitstop,.09);tone(170,.45,'sawtooth',.11,55)}else if(++p.streak>=6){p.streak=0;p.fz=true;fzT=2.2;tone(660,.5,'sine',.1,990);tone(330,.6,'sawtooth',.05,220)}}
+      p.hit.add(e);hitE(e,(p.combo===2?30:22)*(1+bon/100)*(p.fzS?1.5:1));if(p.fzS)blood(e.x,e.y,p.ang,14)}}
     if(wantDodge&&p.t>.14&&p.st>0)startDodge(mx,my,ml);
     else if(p.t>=.3){const c=p.combo;p.state='free';p.t=0;if(p.buf&&p.st>0)startAtk();else p.combo=c}
   }else if(p.state==='dodge'){mx=p.dx;my=p.dy;spd=600*(1-p.t/.26*.5);if(p.t>=.26){p.state='free';p.t=0}
@@ -439,7 +440,7 @@ function update(dt){runT+=dt;updP(dt);
   if(mode==='play'&&!E.length){clearT+=dt;if(clearT>(WAVES[wave].boss?2.8:1.6)){if(wave<WAVES.length-1){const nl=WAVES[wave+1].lv!==LV;P.vials=nl?4:Math.min(4,P.vials+2);if(nl)P.hp=100+bon;startWave(wave+1)}else{mode='win';modeT=0}}}}
 function updFx(dt){for(let i=PT.length-1;i>=0;i--){const p=PT[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.9;p.vy*=.9;p.life-=dt;
     if(p.life<=0){dx.fillStyle='rgba(84,8,12,.6)';dx.beginPath();dx.arc(p.x,p.y,p.s,0,TAU);dx.fill();PT.splice(i,1)}}
-  banner.t-=dt;shake=Math.max(0,shake-40*dt)}
+  fzT=Math.max(0,fzT-dt);banner.t-=dt;shake=Math.max(0,shake-40*dt)}
 
 /* ---------- Zeichnen ---------- */
 function drawP(){const p=P;ctx.save();ctx.translate(p.x,p.y);
@@ -448,11 +449,11 @@ function drawP(){const p=P;ctx.save();ctx.translate(p.x,p.y);
   if(p.state==='dodge'){ctx.fillStyle='rgba(60,56,72,.35)';el(-p.dx*14,-p.dy*14,10,10);el(-p.dx*26,-p.dy*26,8,8)}
   let ba=p.ang+.95,len=34;
   if(p.state==='atk'){const dir=p.combo%2?-1:1,k=clamp(p.t/.22,0,1),e=1-Math.pow(1-k,3),a0=p.ang-dir*1.4;ba=a0+dir*2.8*e;len=46;
-    ctx.beginPath();ctx.arc(0,0,50,Math.min(a0,ba),Math.max(a0,ba));ctx.strokeStyle='rgba(226,226,236,'+(.55*(1-k*.7))+')';ctx.lineWidth=p.combo===2?17:10;ctx.stroke()}
+    ctx.beginPath();ctx.arc(0,0,50,Math.min(a0,ba),Math.max(a0,ba));ctx.strokeStyle='rgba('+(p.fz||p.fzS?'255,40,50,':'226,226,236,')+((p.fz||p.fzS?.8:.55)*(1-k*.7))+')';ctx.lineWidth=(p.combo===2?17:10)+(p.fz||p.fzS?6:0);ctx.stroke()}
   if(p.state==='heal'){ctx.fillStyle='rgba(200,60,60,'+(.25+.2*Math.sin(time*30))+')';el(0,0,19,19)}
   ctx.rotate(p.ang);ctx.fillStyle='#16141a';el(-6,0,15,12);ctx.fillStyle='#2c2833';el(0,0,11,11);ctx.fillStyle='#3d3846';el(2,0,6.5,6.5);
   ctx.fillStyle='#7a2a24';el(-3,0,2.2,7);ctx.rotate(-p.ang);
-  ctx.strokeStyle='#cfcfd8';ctx.lineWidth=3;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(Math.cos(ba)*10,Math.sin(ba)*10);ctx.lineTo(Math.cos(ba)*len,Math.sin(ba)*len);ctx.stroke();
+  if(p.fz){ctx.shadowColor='#ff2030';ctx.shadowBlur=10+4*Math.sin(time*12)}ctx.strokeStyle=p.fz?'#ff4050':'#cfcfd8';ctx.lineWidth=3;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(Math.cos(ba)*10,Math.sin(ba)*10);ctx.lineTo(Math.cos(ba)*len,Math.sin(ba)*len);ctx.stroke();
   ctx.restore()}
 function drawTele(e){ctx.save();
   if(e.type==='b'&&e.state==='wind'){const k=1-e.t/.85;ctx.fillStyle='rgba(170,24,24,'+(.1+k*.22)+')';el(e.x,e.y,88,88);ctx.strokeStyle='rgba(220,60,50,.6)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(e.x,e.y,88*k,0,TAU);ctx.stroke()}
@@ -524,6 +525,8 @@ function hud(){const p=P,hs=260/(100+bon);
   ctx.fillStyle='#0c120b';ctx.fillRect(24,38,200,7);ctx.fillStyle='#5f8f52';ctx.fillRect(24,38,2*Math.max(0,p.st),7);ctx.strokeRect(23.5,37.5,201,8);
   for(let i=0;i<4;i++){const x=26+i*18;ctx.fillStyle=i<p.vials?'#a01a2a':'#221416';rr(ctx,x,58,10,14,3);ctx.fill();ctx.fillRect(x+3,53,4,6)}
   txt(touch?'':'E',104,71,12,'#7d7566','left');
+  for(let i=0;i<6;i++){const on=p.fz||i<p.streak;ctx.fillStyle=p.fz?'rgba(255,48,64,'+(.7+.3*Math.sin(time*10))+')':on?'#c0303a':'#2a1a1c';ctx.beginPath();ctx.arc(29+i*13,88,4,0,TAU);ctx.fill();ctx.strokeStyle='#5a5348';ctx.lineWidth=1;ctx.stroke()}
+  if(fzT>0){ctx.globalAlpha=clamp(Math.min(fzT,2.2-fzT+.15)*3,0,1);ctx.shadowColor='#ff1020';ctx.shadowBlur=18;txt('BLOODFRENZYATTACKE',W/2,196,30,'#ff3848','center',700);ctx.shadowBlur=0;ctx.globalAlpha=1}
   txt('ASCHE  '+ash,W-24,34,16,'#b9b2a4','right');txt(['I','II','III','IV','V','VI','VII'][wave]+' / VII',W-24,54,12,'#7d7566','right');if(bon)txt('Macht  +'+bon+' %',W-24,72,12,'#b86a1e','right');
   const b=E.find(e=>DEF[e.type].boss);
   if(b){txt(b.type==='w'?'Der Glockenwolf':'Die Aschenäbtissin',W/2,574,15,'#cfc6b2');ctx.fillStyle='#16090b';ctx.fillRect(180,582,600,8);ctx.fillStyle='#8e1b22';ctx.fillRect(180,582,600*b.hp/b.max,8);ctx.strokeStyle='#5a5348';ctx.strokeRect(179.5,581.5,601,9)}

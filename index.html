@@ -241,6 +241,9 @@ const moonC=document.createElement('canvas');moonC.width=moonC.height=236;
   blob(-.1,.72,.1,.55,W2);blob(-.33,-.12,.09,.5,W2);blob(-.6,-.1,.055,.45,W2);blob(-.68,-.38,.05,.7,W2);blob(.85,.15,.05,.3,W2);blob(.18,-.62,.04,.3,W2);
   for(const c of [[-.1,.72,3],[-.33,-.12,3.5]]){const [px,py]=P(c[0],c[1]);m.fillStyle='rgba(90,65,70,.35)';m.beginPath();m.arc(px,py,c[2],0,TAU);m.fill()}
   q=m.createRadialGradient(R,R,R*.6,R,R,R);q.addColorStop(0,'rgba(90,30,32,0)');q.addColorStop(1,'rgba(90,30,32,.3)');m.fillStyle=q;m.fillRect(0,0,236,236);
+  const k=R*.7071,bl=(c,a)=>{const gd=m.createLinearGradient(R+k,R-k,R-k,R+k);gd.addColorStop(0,'rgba('+c+','+a+')');gd.addColorStop(.13,'rgba('+c+','+a+')');gd.addColorStop(.3,'rgba('+c+','+a*.45+')');gd.addColorStop(.46,'rgba('+c+',0)');return gd};
+  m.globalCompositeOperation='multiply';m.fillStyle=bl('170,14,22',.95);m.fillRect(0,0,236,236);
+  m.globalCompositeOperation='source-over';m.fillStyle=bl('150,8,16',.3);m.fillRect(0,0,236,236);
   m.restore()})();
 
 /* ---------- Zustand ---------- */

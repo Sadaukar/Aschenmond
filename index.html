@@ -447,7 +447,7 @@ function audioTick(){if(!ac)return;try{audioSetup();const now=ac.currentTime,act
     while(mus.next<now+.3){musStep(S,mus.st,mus.next,mus.I);mus.next+=S.sd*(1-.05*mus.I);mus.st++}}
   else mus.on=false;
   musG.gain.setTargetAtTime(wantM?.75:0,now,wantM?.3:.7);
-  const calm=mode==='story'||mode==='pact',wantA=!muted&&!wantM&&(act||mode==='dead'||calm);ambG.gain.setTargetAtTime(wantA?2.2:0,now,.6);
+  const calm=mode==='story'||mode==='pact',wantA=!muted&&!wantM&&(act||mode==='dead'||calm);ambG.gain.setTargetAtTime(wantA?1.5:0,now,.6);
   if(wantA){const lv=calm?0:LV,w=WIND[lv];if(now>amb.wt){amb.wt=now+rnd(1.5,3.5);windF.frequency.setTargetAtTime(w[0]*rnd(.6,1.7),now,1.4);windG.gain.setTargetAtTime(w[1]*rnd(.5,1.5),now,1.4)}
     if(now>=amb.next){const L=AMBL[lv];AMB[L[Math.random()*L.length|0]](now+.05,rnd(-.8,.8));amb.next=now+rnd(2,5.5)}}
   else amb.next=Math.max(amb.next,now+1.2)}catch(e){}}

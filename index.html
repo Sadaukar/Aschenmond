@@ -373,6 +373,7 @@ const moonC=document.createElement('canvas');moonC.width=moonC.height=236;
 
 /* ---------- Musik und Atmosphäre ---------- */
 let master=null,musG=null,ambG=null,noiseBuf=null,muted=false,windF=null,windG=null,strF,padIn,orgF,brF,leadF;
+const jk={s:null,I:0,auto:false,t0:0};
 const mus={S:null,st:0,next:0,I:0,on:false},amb={next:0,wt:0};
 const mf=m=>440*Math.pow(2,(m-69)/12),N=null;
 const SONGS={
@@ -443,9 +444,9 @@ const AMB={
 const AMBL={0:['wail','whisper','whisper','toll'],1:['howl','howl','growl','bark','creak','pack','toll','groan'],2:['whimper','whimper','wail','whisper','drip','drip','groan','toll'],
   3:['crow','crow','pack','howl','groan','groan','growl','whisper'],4:['frog','frog','bubble','bubble','insects','groan','wail','howl','growl']};
 const WIND={0:[300,.05],1:[480,.09],2:[240,.045],3:[640,.12],4:[340,.06]};
-function audioTick(){if(!ac)return;try{audioSetup();const now=ac.currentTime,act=mode==='play'||mode==='up',bs=act?E.filter(e=>DEF[e.type].boss):[],wantM=bs.length>0&&!muted;
-  if(wantM){const S=SONGS[bs[0].type];if(!mus.on||mus.S!==S){mus.S=S;mus.st=0;mus.I=0;mus.next=now+.5;mus.on=true}if(mus.next<now)mus.next=now+.05;
-    let h=0,m=0;for(const o of bs){h+=Math.max(0,o.hp);m+=o.max}const f=h/m;let I=f>.75?0:f>.5?1:f>.25?2:3;if(bs.some(o=>o.ph===2))I=Math.max(I,2);mus.I=Math.max(mus.I,I);
+function audioTick(){if(!ac)return;try{audioSetup();const now=ac.currentTime,act=mode==='play'||mode==='up',bs=act?E.filter(e=>DEF[e.type].boss):[],jS=mode==='juke'&&jk.s?SONGS[jk.s]:null,wantM=(bs.length>0||!!jS)&&!muted;
+  if(wantM){const S=jS||SONGS[bs[0].type];if(!mus.on||mus.S!==S){mus.S=S;mus.st=0;mus.I=0;mus.next=now+.5;mus.on=true}if(mus.next<now)mus.next=now+.05;
+    if(jS){if(jk.auto)jk.I=Math.min(3,(time-jk.t0)/10|0);mus.I=jk.I}else{let h=0,m=0;for(const o of bs){h+=Math.max(0,o.hp);m+=o.max}const f=h/m;let I=f>.75?0:f>.5?1:f>.25?2:3;if(bs.some(o=>o.ph===2))I=Math.max(I,2);mus.I=Math.max(mus.I,I)}
     while(mus.next<now+.3){musStep(S,mus.st,mus.next,mus.I);mus.next+=S.sd*(1-.05*mus.I);mus.st++}}
   else mus.on=false;
   musG.gain.setTargetAtTime(wantM?.66:0,now,wantM?.3:.7);
@@ -516,7 +517,12 @@ function upCards(){return ash>=1000?[{id:'k',x:320,y:250,w:320,h:130}]:[{id:'h',
 function upPick(id){if(mode!=='up'||modeT<.5)return;
   if(id==='w')waitUp=true;else{const n=id==='k'?3:1;ash-=id==='k'?1000:500;bon+=n;P.hp=Math.min(100+bon,P.hp+n);waitUp=false;tone(392,.5,'sine',.12);tone(587,.7,'sine',.07)}
   mode='play';modeT=0;wantAtk=wantDodge=wantHeal=false;checkUp()}
-function menu(e){pos(e);if(mode==='title'&&mouse.x>340&&mouse.x<620&&mouse.y>548&&mouse.y<580){mode='test';modeT=0}else act()}
+function menu(e){pos(e);if(mode==='title'&&mouse.y>548&&mouse.y<580&&mouse.x>290&&mouse.x<470){mode='test';modeT=0}else if(mode==='title'&&mouse.y>548&&mouse.y<580&&mouse.x>490&&mouse.x<670){mode='juke';modeT=0}else act()}
+function jukeBtns(){const b=[],SG=[['w','Der Glockenwolf'],['a','Die Aschenäbtissin'],['k','Der Pfandherr'],['d','Die Tochter der blutroten Nacht'],['m','Die Moorzwillinge']];
+  SG.forEach((g,i)=>b.push({x:300,y:140+i*46,w:360,h:36,label:g[1],sel:jk.s===g[0],fn:()=>{jk.s=g[0];jk.t0=time;if(jk.auto)jk.I=0;mus.on=false}}));
+  ['Stufe I','Stufe II','Stufe III','Stufe IV'].forEach((l,i)=>b.push({x:214+i*110,y:400,w:100,h:34,label:l,sel:!jk.auto&&jk.I===i,fn:()=>{jk.I=i;jk.auto=false}}));
+  b.push({x:654,y:400,w:120,h:34,label:'Steigernd',sel:jk.auto,fn:()=>{jk.auto=true;jk.I=0;jk.t0=time}});
+  b.push({x:345,y:476,w:130,h:38,label:'Stopp',sel:false,fn:()=>{jk.s=null}});b.push({x:495,y:476,w:130,h:38,label:'Zurück',sel:false,fn:()=>{jk.s=null;mode='title';modeT=0}});return b}
 function testBtns(){const b=[],row=(y,w,items,key)=>{const x0=W/2-(items.length*(w+10)-10)/2+60;items.forEach((it,i)=>b.push({x:x0+i*(w+10),y,w,h:34,label:it[0],sel:TS[key]===it[1],fn:()=>{TS[key]=it[1]}}))};
   row(150,40,[['I',0],['II',1],['III',2],['IV',3],['V',4],['VI',5],['VII',6],['VIII',7],['IX',8],['X',9],['XI',10],['XII',11],['B',12],['XIII',13]],'w');
   row(230,100,[['0',0],['400',400],['900',900],['2000',2000]],'ash');
@@ -538,6 +544,8 @@ addEventListener('keydown',e=>{K[e.code]=1;
   if(e.code==='Escape'){if(mode!=='title'){mode='title';modeT=0}return}
   if(mode==='test'){if(e.code==='Enter')begin(TS.w,true);return}
   if(mode==='title'&&e.code==='KeyT'){mode='test';modeT=0;return}
+  if(mode==='title'&&e.code==='KeyJ'){mode='juke';modeT=0;return}
+  if(mode==='juke')return;
   if(mode==='story'){if(e.code==='Enter'||e.code==='Space')storyGo();return}
   if(mode==='pact'){if(e.code==='Digit1'||e.code==='Numpad1')pactPick(1);else if(e.code==='Digit2'||e.code==='Numpad2')pactPick(0);else if(e.code==='Enter'||e.code==='Space')modeT=Math.max(modeT,5.6);return}
   if(mode==='up'){const c=upCards();if(e.code==='Digit1'||e.code==='Numpad1'||(e.code==='Enter'&&c.length===1))upPick(c[0].id);else if((e.code==='Digit2'||e.code==='Numpad2')&&c[1])upPick(c[1].id);return}
@@ -548,6 +556,7 @@ addEventListener('blur',()=>{for(const k in K)K[k]=0});
 function pos(e){const r=cv.getBoundingClientRect();mouse.x=(e.clientX-r.left)/r.width*W;mouse.y=(e.clientY-r.top)/r.height*H}
 cv.addEventListener('pointermove',e=>{if(e.pointerType!=='touch')pos(e)});
 cv.addEventListener('pointerdown',e=>{initAudio();
+  if(mode==='juke'){pos(e);if(e.pointerType==='touch')setTouch();for(const b of jukeBtns())if(mouse.x>b.x&&mouse.x<b.x+b.w&&mouse.y>b.y&&mouse.y<b.y+b.h){b.fn();break}return}
   if(mode==='test'){pos(e);if(e.pointerType==='touch')setTouch();for(const b of testBtns())if(mouse.x>b.x&&mouse.x<b.x+b.w&&mouse.y>b.y&&mouse.y<b.y+b.h){b.fn();break}return}
   if(mode==='story'){if(e.pointerType==='touch')setTouch();storyGo();return}
   if(mode==='pact'){pos(e);if(e.pointerType==='touch')setTouch();if(modeT<5.6){modeT=5.6;return}for(const b of pactBtns())if(mouse.x>b.x&&mouse.x<b.x+b.w&&mouse.y>b.y&&mouse.y<b.y+b.h){pactPick(b.id);break}return}
@@ -935,7 +944,15 @@ function draw(){ctx.clearRect(0,0,W,H);scene();
     txt(c[0],W/2,410,14,'#b9b2a4');txt(c[1],W/2,434,14,'#b9b2a4');
     txt('Getroffen? Schlag sofort zurück – der orange Teil der Lebensleiste lässt sich zurückerobern.',W/2,470,13,'#b86a1e');
     ctx.globalAlpha=.55+.45*Math.sin(time*3);txt(touch?'Tippen, um die Jagd zu beginnen':'Klicken, um die Jagd zu beginnen',W/2,530,18,'#d8cfba');ctx.globalAlpha=1;
-    ctx.strokeStyle='#5a5348';ctx.lineWidth=1;rr(ctx,340,548,280,32,5);ctx.stroke();txt(touch?'Testmenü':'Testmenü  (Taste T)',W/2,569,13,'#9a9282');return}
+    ctx.strokeStyle='#5a5348';ctx.lineWidth=1;rr(ctx,290,548,180,32,5);ctx.stroke();rr(ctx,490,548,180,32,5);ctx.stroke();txt(touch?'Testmenü':'Testmenü  (T)',380,569,13,'#9a9282');txt(touch?'Musikzimmer':'Musikzimmer  (J)',580,569,13,'#9a9282');return}
+  if(mode==='juke'){ctx.fillStyle='rgba(3,3,6,.9)';ctx.fillRect(0,0,W,H);
+    txt('MUSIKZIMMER',W/2,84,40,'#d8cfba','center',700);ctx.fillStyle='#8e1b22';ctx.fillRect(W/2-120,100,240,2);
+    txt('Stück',270,163,15,'#9a9282','right');txt('Intensität',196,422,15,'#9a9282','right');
+    for(const b of jukeBtns()){const hov=!touch&&mouse.x>b.x&&mouse.x<b.x+b.w&&mouse.y>b.y&&mouse.y<b.y+b.h;
+      ctx.fillStyle=b.sel?'#3a1216':hov?'#211a1c':'#120f12';rr(ctx,b.x,b.y,b.w,b.h,5);ctx.fill();ctx.strokeStyle=b.sel?'#c0303a':'#5a5348';ctx.lineWidth=hov?2.5:1.5;ctx.stroke();
+      txt(b.label,b.x+b.w/2,b.y+b.h/2+5,14,b.sel?'#f0e6d0':'#b9b2a4')}
+    txt(muted?'Ton ist aus – Taste M schaltet ihn ein.':jk.s?(jk.auto?'Steigert sich alle 10 Sekunden um eine Stufe.':'Im Kampf richtet sich die Stufe nach der Lebensleiste des Bosses.'):'Wähle ein Stück.',W/2,548,12,'#7d7566');
+    txt('Esc – zurück',W/2,572,12,'#5f584c');return}
   if(mode==='test'){ctx.fillStyle='rgba(3,3,6,.88)';ctx.fillRect(0,0,W,H);
     txt('TESTMENÜ',W/2,92,40,'#d8cfba','center',700);ctx.fillStyle='#8e1b22';ctx.fillRect(W/2-100,108,200,2);
     [['Abschnitt',172,186],['Asche',252],['Macht',332],['Extras',412]].forEach(l=>txt(l[0],l[2]||250,l[1],15,'#9a9282','right'));
@@ -1007,7 +1024,7 @@ function draw(){ctx.clearRect(0,0,W,H);scene();
 let last=performance.now();
 function loop(now){const dt=Math.min(.033,Math.max(0,(now-last)/1000));last=now;time+=dt;modeT+=dt;
   if(mode==='play'){if(hitstop>0)hitstop-=dt;else update(dt)}
-  if(mode!=='title'&&mode!=='up'&&mode!=='test'&&mode!=='pact'&&mode!=='story')updFx(dt);
+  if(mode!=='title'&&mode!=='up'&&mode!=='test'&&mode!=='pact'&&mode!=='story'&&mode!=='juke')updFx(dt);
   draw();audioTick();requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
 })();

@@ -500,6 +500,12 @@ function draw(){ctx.clearRect(0,0,W,H);scene();
   if(mode==='title'){ctx.fillStyle='rgba(3,3,6,.78)';ctx.fillRect(0,0,W,H);
     const g=ctx.createRadialGradient(W/2,150,10,W/2,150,190);g.addColorStop(0,'rgba(214,190,170,.95)');g.addColorStop(.3,'rgba(190,150,140,.9)');g.addColorStop(.32,'rgba(150,60,50,.22)');g.addColorStop(1,'rgba(120,30,30,0)');
     ctx.fillStyle=g;ctx.fillRect(0,0,W,360);
+    ctx.save();ctx.beginPath();ctx.arc(W/2,150,59,0,TAU);ctx.clip();
+    ctx.fillStyle='rgba(90,50,50,.10)';for(const m of [[-18,-14,24,17],[16,10,20,15],[-8,26,17,10],[26,-26,13,9]])el(W/2+m[0],150+m[1],m[2],m[3]);
+    for(const c of [[-30,8,7],[-6,-32,5],[22,-8,6],[8,30,8],[-22,34,4],[36,18,5],[-40,-18,4],[4,-4,3.5],[30,38,3],[-12,12,3],[42,-6,3]]){const x=W/2+c[0],y=150+c[1],r=c[2];
+      ctx.fillStyle='rgba(80,40,40,.13)';el(x,y,r,r);ctx.strokeStyle='rgba(60,25,25,.16)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,r,3.6,6.0);ctx.stroke();
+      ctx.strokeStyle='rgba(255,240,225,.16)';ctx.beginPath();ctx.arc(x,y,r,.5,2.9);ctx.stroke()}
+    ctx.restore();
     txt('ASCHENMOND',W/2,300,72,'#d8cfba','center',700);ctx.fillStyle='#8e1b22';ctx.fillRect(W/2-170,318,340,2);
     txt('Ein Spiel von Sadaukar und JudasIscariot',W/2,340,12,'#7d7566');
     txt('Zwei Nächte. Zwei Bestien. Kein Erbarmen.',W/2,370,17,'#9a9282');

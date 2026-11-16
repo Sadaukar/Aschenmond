@@ -20,6 +20,14 @@ Ein kurzes Gothic-Actionspiel aus der Vogelperspektive – schnelle Hiebe, Auswe
 
 ## Inhalt
 
+Zwei Nächte mit mehreren Gegnerwellen und je einem Bosskampf am Ende.
+
+<details>
+<summary>Spoiler: Schauplätze und Bosse anzeigen</summary>
+
 - **Nacht 1 – Die Aschengasse:** drei Wellen, Boss „Der Glockenwolf"
 - **Nacht 2 – Die versunkene Kapelle:** zwei Wellen, Boss „Die Aschenäbtissin"
-- **Aschenopfer:** 500 Asche für +1 % Leben und Schaden oder 1000 Asche für +3 %
+
+</details>
+
+**Aschenopfer:** 500 Asche für +1 % Leben und Schaden oder 1000 Asche für +3 %.

@@ -29,8 +29,6 @@ Drei Nächte mit mehreren Gegnerwellen und je einem Bosskampf am Ende. In der dr
 - **Nacht 2 – Die versunkene Kapelle:** zwei Wellen, Boss „Die Aschenäbtissin"
 - **Nacht 3 – Der Knochenacker:** zwei Wellen, Boss „Der Pfandherr". Vor dem Tor bietet ein Namenloser seine Klinge an; nimmt man an, kämpft er im Bosskampf mit.
 
-</details>
-
 **Aschenopfer:** 500 Asche für +1 % Leben und Schaden oder 1000 Asche für +3 %.
 
 **Bloodfrenzyattacke:** Nach sechs Treffern ohne Gegentreffer macht der nächste Treffer 50 % mehr Schaden.
